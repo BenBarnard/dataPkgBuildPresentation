@@ -1,0 +1,101 @@
+---
+title: "Automated Building and Storing Frozen Data in R Packages Using Travis and Drat"
+author: "Ben Barnard"
+date: "2/6/2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+- Getting access to data is a pain
+- Cleaning data is a pain
+- Talking to people is also a pain
+
+## History
+
+Insert meme
+
+## Required Resorces
+
+- GitHub
+- Travis
+- Data access
+- drat
+- other as needed packages
+
+## Data package Build
+
+Easy route:
+
+- fork repository BenBarnard/dataPkgBuild
+- change r scripts as necessary to build data
+
+Harder Route:
+
+- setup package skeleton
+- create "docs" or another folder to be added to .Rbuildignore
+- create .travis.yml with necessary scripts
+
+## Creating Package Skeleton
+
+```{r, eval = FALSE}
+library(usethis)
+
+create_package(getwd())
+use_travis()
+```
+
+
+## .travis.yml
+
+```{yml}
+language: R
+sudo: false
+script:
+ - Rscript -e "d <- read.dcf('DESCRIPTION'); d[1,3] <- gsub('-', '.', Sys.Date()); write.dcf(d, 'DESCRIPTION')"
+ - R CMD build .
+ - R CMD check *tar.gz
+cache: packages
+after_success:
+ - Rscript -e "install.packages('drat')"
+ - Rscript -e "drat::insertPackage(paste0('dataPkgBuild_', gsub('-', '.', Sys.Date()), '.tar.gz'), repodir = 'docs')"
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_PAT
+  on:
+    branch: master
+  local-dir: docs
+  target-branch: gh-pages
+```
+
+## docs directory
+
+docs > src > contrib
+
+- add dirctory to .Rbuildignore since we are going to run a check of the package on travis
+
+## R script to build data from api
+
+## R script to build from database
+
+## Email notifications
+
+
+```{yml}
+notifications:
+  email:
+    - one@example.com
+    - other@example.com
+```
+
+## Setting Cron Jobs
+
+
+
+
+
