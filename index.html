@@ -3151,7 +3151,31 @@ if (document.readyState !== "loading" &&
 
 </article></slide><slide class=""><hgroup><h2>Creating Package Skeleton</h2></hgroup><article  id="creating-package-skeleton">
 
+<pre class = 'prettyprint lang-r'>library(usethis)
+
+create_package(getwd())
+use_travis()</pre>
+
 </article></slide><slide class=""><hgroup><h2>.travis.yml</h2></hgroup><article  id="travis.yml">
+
+<pre class = 'prettyprint lang-yml'>language: R
+sudo: false
+script:
+ - Rscript -e &quot;d &lt;- read.dcf(&#39;DESCRIPTION&#39;); d[1,3] &lt;- gsub(&#39;-&#39;, &#39;.&#39;, Sys.Date()); write.dcf(d, &#39;DESCRIPTION&#39;)&quot;
+ - R CMD build .
+ - R CMD check *tar.gz
+cache: packages
+after_success:
+ - Rscript -e &quot;install.packages(&#39;drat&#39;)&quot;
+ - Rscript -e &quot;drat::insertPackage(paste0(&#39;dataPkgBuild_&#39;, gsub(&#39;-&#39;, &#39;.&#39;, Sys.Date()), &#39;.tar.gz&#39;), repodir = &#39;docs&#39;)&quot;
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_PAT
+  on:
+    branch: master
+  local-dir: docs
+  target-branch: gh-pages</pre>
 
 </article></slide><slide class=""><hgroup><h2>docs directory</h2></hgroup><article  id="docs-directory">
 
@@ -3166,6 +3190,11 @@ if (document.readyState !== "loading" &&
 </article></slide><slide class=""><hgroup><h2>R script to build from database</h2></hgroup><article  id="r-script-to-build-from-database">
 
 </article></slide><slide class=""><hgroup><h2>Email notifications</h2></hgroup><article  id="email-notifications">
+
+<pre class = 'prettyprint lang-yml'>notifications:
+  email:
+    - one@example.com
+    - other@example.com</pre>
 
 </article></slide><slide class=""><hgroup><h2>Setting Cron Jobs</h2></hgroup><article  id="setting-cron-jobs"></article></slide>
 
